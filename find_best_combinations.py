@@ -125,6 +125,23 @@ def load_wset_from_file(filename):
     return set(r)
 
 
+def printw(s):
+    assert(len(s)%7 == 0)
+    nb_w = int(len(s)/7)
+    print()
+    # to enable line print header, override nb_w to 1
+    # for i in range(0, nb_w):
+    for i in range(0, 1):
+        print("L M M J V S D ", end='')
+    print()
+    for i in range(0, nb_w):
+        for j in range(0, 7):
+        #for e in s:
+            print("{} ".format(s[j+7*i]), end='')
+        print()
+    print("days worked: {}".format(s.count('J')))
+
+
 def save_to_file(filename, content):
     with open(filename, 'a') as f:
         f.write(content)
@@ -146,6 +163,22 @@ if __name__ == '__main__':
     cnt = 0
     lenwset = len(wset)
     for s in wset:
+
+        # s =  ('o', 'J', 'J', 'o', 'o', 'J', 'J')
+        # s += ('o', 'o', 'o', 'J', 'J', 'o', 'o')
+        # s += ('J', 'J', 'o', 'J', 'o', 'o', 'o')
+        # s += ('J', 'J', 'o', 'o', 'o', 'J', 'J')
+        # s += ('o', 'o', 'J', 'o', 'J', 'o', 'o')
+        # s += ('J', 'o', 'o', 'J', 'J', 'o', 'o')
+        # s += ('o', 'J', 'J', 'o', 'o', 'J', 'J')
+        # s += ('o', 'o', 'J', 'J', 'o', 'o', 'o')
+        # s += ('J', 'J', 'o', 'o', 'J', 'o', 'o')
+        # s += ('J', 'J', 'o', 'o', 'o', 'J', 'J')
+        # s += ('o', 'o', 'o', 'J', 'J', 'o', 'o')
+        # s += ('J', 'o', 'J', 'J', 'o', 'o', 'o')
+
+        # printw(s)
+
         cnt = cnt+1
 
         variant_list = []
