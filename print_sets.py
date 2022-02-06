@@ -1,35 +1,32 @@
-def printw(s):
-    assert(len(s)%7 == 0)
-    nb_w = int(len(s)/7)
-    print()
-    # to enable line print header, override nb_w to 1
-    # for i in range(0, nb_w):
-    for i in range(0, 1):
-        print("L M M J V S D ", end='')
-    print()
-    for i in range(0, nb_w):
-        for j in range(0, 7):
-        #for e in s:
-            print("{} ".format(s[j+7*i]), end='')
-        print()
-    print("days worked: {}".format(s.count('J')))
+#!/usr/bin/python3
 
-
-def load_wset_from_file(filename):
-    print("Loading wset from {}".format(filename))
-    r = []
-    with open(filename) as file:
-        for line in file:
-            #  print(line)
-            r.append(tuple(line.rstrip()))
-    return set(r)
+from functions import printw, string_to_weekset
+from os.path import isfile
 
 
 if __name__ == "__main__":
-    input_file = "output/variants_12w/12-weeks.txt"
+    '''
+    print a week set from an input file.
+    Ex:
+    $ cat a.txt
+    JJooJJo
+    JJoooJJ
+    $ ./print_sets.py
+    which input file: a.txt
 
-    ampwv = load_wset_from_file(input_file)
+    L M M J V S D
+    J J o o J J o
+    days worked: 4
 
-    for s in ampwv:
-        printw(s)
+    L M M J V S D
+    J J o o o J J
+    days worked: 4
+    '''
+    in_file = input("which input file: ")
 
+    if not isfile(in_file):
+        raise ValueError("Error, file doesn't exists")
+
+    with open(in_file) as f:
+        for line in f:
+            printw(string_to_weekset(line))

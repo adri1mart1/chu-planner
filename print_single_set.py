@@ -1,26 +1,19 @@
-def printw(s):
-    assert(len(s)%7 == 0)
-    nb_w = int(len(s)/7)
-    print()
-    # to enable line print header, override nb_w to 1
-    # for i in range(0, nb_w):
-    for i in range(0, 1):
-        print("L M M J V S D ", end='')
-    print()
-    for i in range(0, nb_w):
-        for j in range(0, 7):
-        #for e in s:
-            print("{} ".format(s[j+7*i]), end='')
-        print()
-    print("days worked: {}".format(s.count('J')))
+#!/usr/bin/python3
 
-
-def string_to_weekset(s):
-    return tuple(s.rstrip())
+from functions import printw, string_to_weekset
 
 
 if __name__ == "__main__":
-    s_string = input("which set: ")
-    print(s_string)
+    '''
+    print a single working set from stdin.
+    ex:
+    $ ./print_single_set.py
+    which set: JJooJJoJJoooJJ
 
+    L M M J V S D
+    J J o o J J o
+    J J o o o J J
+    days worked: 8
+    '''
+    s_string = input("which set: ")
     printw(string_to_weekset(s_string))
