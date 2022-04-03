@@ -20,9 +20,9 @@ The example thread over 3 weeks is the following:
 
 
 3 persons are in the same team, sharing the same thread, starting at different starting point in the thread:
-personA following the thread week1, week2, week3
-personB following the thread week2, week3, week1
-personC following the thread week3, week1, week2
+- personA following the thread week1, week2, week3
+- personB following the thread week2, week3, week1
+- personC following the thread week3, week1, week2
 
 |    | m | t | w | t | f | s | s | m | t | w | t | f | s | s | m | t | w | t | f | s | s |
 |----|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
