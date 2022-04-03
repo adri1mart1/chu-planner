@@ -35,7 +35,7 @@ def detect_if_valid_number_of_persons_per_weekend(v) -> bool:
     assert(len(v[0])%7 == 0)
     week_number = int(len(v[0])/7)
     for i in range(0, week_number):
-        # person_working_per_week_end -> res
+        ''' person_working_per_week_end -> res '''
         res = 0
         for p in range(0, PERSON_NUMBER):
             if v[p][7*i+5] != v[p][7*i+6]:
@@ -45,7 +45,6 @@ def detect_if_valid_number_of_persons_per_weekend(v) -> bool:
             if v[p][7*i+5] == WORKING_DAY:
                 res += 1
         if res < MIN_PERSON_NUMBER_WORKING_PER_WEEKEND or res > MAX_PERSON_NUMBER_WORKING_PER_WEEKEND:
-            # print("Variant {} is invalid because there are {} persons working on the {}th weekend".format(v, res, i+1))
             return False
     return True
 
@@ -59,7 +58,6 @@ def detect_if_one_person_per_working_day(v):
                 if v[p][7*i+d] == WORKING_DAY:
                     res += 1
                     break
-            # print("number of persons working on day {} -> {}".format(i+1, res))
             if res < MIN_PERSON_NUMBER_WORKING_PER_WORKING_DAY:
                 return False
     return True

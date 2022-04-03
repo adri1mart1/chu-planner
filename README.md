@@ -1,7 +1,7 @@
 # CHU planner project
 
 CHU planner is about planning organization. Very recently, I had an opportunity to work on the employees'planning at the hospital, hence, CHU (french version of UHC - University Hospital Center). This work was needed because a vote to update the daily working hours from 7.5h to 12h had been cast. A full working week was before 5 days of 7.5h and now becoming 3 days of 12h. To ease organization, the planning is based on a thread (usually a 10 to 20 weeks threads) which is a logic suite of days indicating if this is a working day or not. This thread is repeated over and over. When you have a team with several people, everyone is having the same thread but they start at different indexes so the team is well balanced (more explaination below).
-With some feedback from nurses, logic and a bit of programming, the goal was to find some of the best combinations of work shifts and to, the best thread to match the needs.
+With some feedback from nurses, logic and a bit of programming, the goal was to find some of the best combinations of work shifts and so, the best thread to match the needs.
 
 Rules are simple:
  - A typical working day is 12 hours, either you work ('J' symbol) or you don't ('o' symbol)
@@ -14,9 +14,9 @@ The example thread over 3 weeks is the following:
 
 |    | m | t | w | t | f | s | s |
 |----|---|---|---|---|---|---|---|
-| w1 | o | o | J | o | o | J | J |
-| w2 | o | J | o | o | J | J | J |
-| w3 | o | o | J | o | J | o | o |
+| week1 | o | o | J | o | o | J | J |
+| week2 | o | J | o | o | J | J | J |
+| week3 | o | o | J | o | J | o | o |
 
 
 3 persons are in the same team, sharing the same thread, starting at different starting point in the thread:
@@ -37,6 +37,8 @@ Ideally, the management wants to have someone working every day to keep a contin
 The goal of this project is to find good threads and find best combinations of this thread.
 
 # Details of implementation
+
+I choose Python language as it's easy to write and at first, it was not very obvious how to find a good solution for this problem. In addition, when we started to work on this project, we didn't have all rules to follow so, multiple times, we had to add, update or remove some functions to adapt the whole program.
 
 Base hypothesis:
  - Main thread is 12-weeks long
@@ -77,15 +79,16 @@ JJJJJJJ
 
 In this file, we can filter results pruning invalid results. All pruning rules can be seen in the source code, function names are verbose enough to understand what it does.
 Some example:
-ooJJJJo -> Impossible because 4 working days in a row is too many days to work without any break
-oJoooJo -> Impossible because if a saturday is worked, sunday must be worked too (a weekend is a whole)
+
+`ooJJJJo` -> Impossible because 4 working days in a row is too many days to work without any break
+`oJoooJo` -> Impossible because if a saturday is worked, sunday must be worked too (a weekend is a whole)
 
 Valid results are saved into `output/variants_12w/1-week.txt` file.
 
 ### STEP 1.2: generate 2-weeks variants
 
 We retrieve all valid 1-week results and assemble them two by two to generate 2-weeks variants.
-1-week variant number is 35 so there are 35² =  1225 2-weeks variant possibilities.
+1-week variant number is 35 so there are 35² = 1225 2-weeks variant possibilities.
 Again, we prune the variants following some rules.
 
 Some new rules used when dealing with 2 weeks-variants:
@@ -117,7 +120,7 @@ Then, we still have multiple choices so to choose the best one, we take the comb
 
 Lets take a look at the example we use before:
 
-Say the thread we are using is: ooJooJJoJooJJJooJoJoo which is represented like this.
+Say the thread we are using is `ooJooJJoJooJJJooJoJoo` which is represented like this.
 
 |    | m | t | w | t | f | s | s |
 |----|---|---|---|---|---|---|---|
@@ -125,7 +128,7 @@ Say the thread we are using is: ooJooJJoJooJJJooJoJoo which is represented like 
 | w2 | o | J | o | o | J | J | J |
 | w3 | o | o | J | o | J | o | o |
 
-We then have the 3 possible ways of following the thread which are `w1-w2-w2` or `w2-w3-w1` or `w3-w1-w2`.
+We then have the 3 possible ways of following the thread which are `w1-w2-w3` or `w2-w3-w1` or `w3-w1-w2`.
 Respecting the initial order of the thread is important but the initial starting point can be any begining of every week.
 
 Say we have a team of 2 persons, these 2 persons can either work:
@@ -142,7 +145,7 @@ Considering a real example with 12-weeks threads, 5 persons in a team, there are
 
 On this project, I have used text files with either 'J' or 'o' character to represent data. Depending on which rules are set to prune results, there may be a lot of results, so much that output files was several hundred of megabytes.
 To manage this, the `assemble_variants_two_by_two` function computes how much the output file will be. If it is detected to be oversized by a factor N, the function will assemble every N frames two by two.
-This is a good way to deal with a lot of data, quite simple, fair and we don't use any random or shuffle function which needs to load data into memory before mixing everything.
+This is a good way to deal with a lot of data, quite simple, fair and we don't use any random or shuffle native python function which needs to load data into memory before mixing everything.
 
 # How to use
 
@@ -248,9 +251,6 @@ The final file we are interested in is named `12-weeks.txt` and is approximately
 
 ## Find best combinations
 
-
-### Best combinations in depth
-
 As we have about 2000 possible threads of 12-weeks, with a team of 5 persons (so about 800 combinations per thread), the script can analyze about 1.6 millions of possibilities for us. It keeps the best result, minimizing the number of day only one person is working.
 
 To starting the script, use:
@@ -265,11 +265,28 @@ Loading wset from output/variants_12w/12-weeks.txt
 find best combination search finished, best result is 6 days with one person working
 ```
 
+The file `output/combinations/valid-results-12w.txt` stores all valid results.
+Each result is a per below:
+
+```
+********
+shift: JoooJoooJoJJoooJJooJJoooJJooJoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJ
+s1: JoooJoooJoJJoooJJooJJoooJJooJoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJ
+s2: oJoJJoooJJooJJoooJJooJoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJJoooJoo
+s3: oJJooJJoooJJooJoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJJoooJoooJoJJoo
+s4: oooJJooJoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJJoooJoooJoJJoooJJooJJ
+s5: JoJooooJJoooJJooJoJoooJoJJooJooJoJJooJoJooJJoooooooJooJJJoooJoooJoJJoooJJooJJoooJJoo
+1-person working num: 6/84
+```
+
+The `shift` line is the thread pattern to follow.
+The lines `sN` are each variant of the initial thread with starting index being equal to `7x(N-1)`. `s1` is the exact same thread, `s2` is the thread starting at index 7, and so on.
+
+These results are sufficient enough for our task as we just copy paste some of this threads in a predefined Excel spreadsheet and suggest this new planning to the management. (See `data/template*.xlsx` file for more info)
+
 # Tools
 
 Theses scripts are simple tools that can help when tweaking constraints, adjusting scripts.
-
-## print_sets.py
 
 ## print_single_set.py
 

@@ -70,6 +70,9 @@ stats_not_exactly_1_out_of_3_working_weekend_used = False
 stats_more_than_one_3_working_days_in_a_row = 0
 stats_more_than_one_3_working_days_in_a_row_used = False
 
+''' 10Mb limit per file when stored '''
+max_disk_usage_per_file = 10000000
+
 
 def reset_pruning_stats():
     global stats_more_than_3_consecutive_working_days
@@ -225,14 +228,13 @@ def assemble_variants_two_by_two(out_weeklen, in_file1, weeklen_file1, in_file2,
     size_file_2 = stat(in_file2).st_size
     n_lines_file_1 = int(size_file_1 / (weeklen_file1*7+1))
     n_lines_file_2 = int(size_file_2 / (weeklen_file2*7+1))
-    max_disk_usage = 10000000 # 10Mb
-    n_frames_to_keep = int(max_disk_usage / (out_weeklen*7+1))
+    n_frames_to_keep = int(max_disk_usage_per_file / (out_weeklen*7+1))
     to_be_generated = n_lines_file_1 * n_lines_file_2
     skip_cnt = round(to_be_generated / n_frames_to_keep)
     if to_be_generated > n_frames_to_keep:
         print("input_file 1 size {} bytes which represents {} variants".format(size_file_1, n_lines_file_1))
         print("input_file 2 size {} bytes which represents {} variants".format(size_file_2, n_lines_file_2))
-        print("We must limit disk usage to {} bytes with frame generation of {} chars each".format(max_disk_usage, out_weeklen*7+1))
+        print("We must limit disk usage to {} bytes with frame generation of {} chars each".format(max_disk_usage_per_file, out_weeklen*7+1))
         print("total number of possibilities {} x {} = {}".format(n_lines_file_1, n_lines_file_2, to_be_generated))
         print("Number of {}-weeks variants to keep to respect disk usage: {}".format(out_weeklen, n_frames_to_keep))
 
@@ -309,7 +311,8 @@ def set_has_not_exactly_1_out_of_3_working_weekend(s) -> bool:
     global stats_not_exactly_1_out_of_3_working_weekend
     global stats_not_exactly_1_out_of_3_working_weekend_used
     stats_not_exactly_1_out_of_3_working_weekend_used = True
-    assert(len(s) > 27) # we need a month to call this function
+    ''' we need a month to call this function '''
+    assert(len(s) > 27)
     assert((len(s) % 7) == 0)
     n_w = int(len(s) / 7)
     n_iter = int(n_w / 3)
@@ -502,7 +505,7 @@ def filter_all_impossible_twelve_weeks_variants():
                 if set_has_two_working_week_ends_in_a_row(s):
                     continue
 
-                # check rotation by creating subset
+                ''' check thread rotation by creating subset '''
                 l = int(len(s) / 2)
                 ss = tuple(s[-l:] + s[:l])
 
@@ -534,14 +537,14 @@ if __name__ == "__main__":
     makedirs(results_dir, exist_ok=True)
     makedirs(variant_dir, exist_ok=True)
 
-    # 1 week part
+    ''' 1 week part '''
     if not isfile(w1_text_file):
         generate_all_mathematical_possible_week_variants()
         filter_all_impossible_week_variants()
     else:
         print("file {} already exists, using it".format(w1_text_file))
 
-    # 2 weeks part
+    ''' 2 weeks part '''
     if not isfile(w2_all_text_file):
         assemble_variants_two_by_two(2, w1_text_file, 1, w1_text_file, 1, w2_all_text_file)
     if not isfile(w2_text_file):
@@ -549,7 +552,7 @@ if __name__ == "__main__":
     else:
         print("file {} already exists, using it".format(w2_text_file))
 
-    # 4 weeks part
+    ''' 4 weeks part '''
     if not isfile(w4_all_text_file):
         assemble_variants_two_by_two(4, w2_text_file, 2, w2_text_file, 2, w4_all_text_file)
     if not isfile(w4_text_file):
@@ -557,7 +560,7 @@ if __name__ == "__main__":
     else:
         print("file {} already exists, using it".format(w4_text_file))
 
-    # 8 weeks part
+    ''' 8 weeks part '''
     if not isfile(w8_all_text_file):
         assemble_variants_two_by_two(8, w4_text_file, 4, w4_text_file, 4, w8_all_text_file)
     if not isfile(w8_text_file):
@@ -565,7 +568,7 @@ if __name__ == "__main__":
     else:
         print("file {} already exists, using it".format(w8_text_file))
 
-    # 12 weeks parts
+    ''' 12 weeks parts '''
     if not isfile(w12_all_text_file):
         assemble_variants_two_by_two(12, w8_text_file, 8, w4_text_file, 4, w12_all_text_file)
     if not isfile(w12_text_file):
