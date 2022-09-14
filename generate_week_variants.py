@@ -44,8 +44,6 @@ w8_text_file = join(variant_dir, "8-weeks.txt")
 w8_all_text_file = join(variant_dir, "8-weeks-all-variants.txt")
 w12_text_file = join(variant_dir, "12-weeks.txt")
 w12_all_text_file = join(variant_dir, "12-weeks-all-variants.txt")
-w16_text_file = join(variant_dir, "16-weeks.txt")
-w20_text_file = join(variant_dir, "20-weeks.txt")
 
 
 ''' stats variables '''

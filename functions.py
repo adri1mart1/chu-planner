@@ -10,7 +10,7 @@ def printw(s):
         for j in range(0, 7):
             print("{} ".format(s[j+7*i]), end='')
         print()
-    print("days worked: {}".format(s.count('J')))
+    print("days worked: {}/{}".format(s.count('J'), len(s)))
 
 
 def string_to_weekset(s):
