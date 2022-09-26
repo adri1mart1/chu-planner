@@ -17,7 +17,7 @@ Hypothèses:
  - Le travail de nuit n'est pas considéré, c'est une autre équipe actuellement.
  - Les horaires n'ont pas d'incidence sur la réflexion globale.
  - Même hypothèses que pour le CHU à savoir:
-   - trame de 16 semaines
+   - trame de 12 semaines
  - Les 10 personnes n'ont pas obligatoirement une trame différente.
 
 
@@ -80,7 +80,7 @@ Donc cette 3e possibilités de planning doit respecter la condition de faire tra
 
 Exploration de la 2e possibilité:
 
-L'objectif est d'avoir tous les jours 3 personnes et toutes les nuits, 1 personnes pour un total de 48h par jour.
+L'objectif est d'avoir tous les jours 3 personnes et toutes les nuits, 1 personne pour un total de 48h par jour.
 
 ---
 Note: Cette réflexion ne se soucis pas des horaires de travail mais soyons conscient qu'en EPHAD, le lever se fait autour
@@ -94,14 +94,47 @@ Une personne doit travailler 35h par semaine en moyenne avec un maximum de 48h s
  12h x 3 jours = 36h.
 Le code du travail indique: Quand le cycle de travail prévoit une durée de travail supérieure à 35 heures par semaine, les heures accomplies au-delà de la durée légale donnent droit à des RTT.
 
-On considere donc que l'heure supplémentaire (de 35 a 36h octroie une heure de RTT).
+On considere donc que l'heure supplémentaire (de 35hh à 36h octroie une heure de RTT).
 
 Le minimum de personnel nécessaire pour une semaine est de:
  - 48h de travail par jour, soit 336h par semaine.
 336h / 12h = 28 rotations de 12h.
 Une personne peut faire en moyenne 3 rotations de 12h par semaine donc: 28 / 3 = 9.3333.
 
-Il faut à minima 10 personnes (a 100%) pour pour tenir la cadence hors congés.
+Il faut à minima 10 personnes (à 100%) pour pour tenir la cadence hors congés.
+
+---
+Déroulement des algos pour 10 personnes sur 12 semaines.
+
+- Déroulement du script find_best_combinations avec:
+  - 10 personnes sur l'équipe
+  - roulement du 12 semaines
+  - Chaque personne de l'équipe a une trame différente
+  - 3 personnes qui travaillent chaque jour.
+
+-> Le nombre de combinations mathématiques est très faible: 66 possibilités différentes.
+ça veut dire que pour une trame donnée de 12 semaines et 10 personnes, il existe 66 façons différentes de construire des trames
+pour chaque personne de l'équipe. ça peut paraitre peu mais cela vient du faire que:
+ - chaque variante de la trame principale doit commencer un lundi (Donc 12 possibilités différentes de commencer la trame)
+ - chaque variante doit respecter l'ordre de la trame. Exemple, une trame de base 'ABCD' ne peut pas donner 'CABD'
+ - chaque personne doit avoir une variante différente de son voisin.
+
+En considérant ces 66 combinations possibles par variantes, cela nous donne:
+ - 115 000 trames sur 12 semaines possibles
+ - 66 variantes sur chacune des trames
+ --> Au moins 150 possibilités de planning avec toujours au moins 3 personnes chaque jours:
+     Exemple:
+        Number of day with 0 person: 0
+        Number of day with 1 person: 0
+        Number of day with 2 person: 0
+        Number of day with 3 person: 26
+        Number of day with 4 person: 32
+        Number of day with 5 person: 22
+        Number of day with 6 person: 4
+        Number of day with 7 person: 0
+        Number of day with 8 person: 0
+        Number of day with 9 person: 0
+        Number of day with 10 person: 0
 
 
 

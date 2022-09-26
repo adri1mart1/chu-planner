@@ -8,7 +8,7 @@ import sys
 
 
 THREAD_TOTAL_WEEK_NUMBER = 12
-PERSON_NUMBER = 5
+PERSON_NUMBER = 10
 
 MIN_PERSON_NUMBER_WORKING_PER_WEEKEND = 1
 MAX_PERSON_NUMBER_WORKING_PER_WEEKEND = 10
@@ -105,6 +105,7 @@ def get_shift_index(th) -> int:
         idx += 1
     raise ValueError("get_shift_index failed with variant_list {} and th {}".format(variant_list, th))
 
+total = 0
 
 class VariantEval:
     def __init__(self, v, d):
@@ -112,6 +113,7 @@ class VariantEval:
         self.day_number = d
         self.num_per_per_day = dict()
         # init variable
+        # print("variant: {} len:{} d:{}".format(v, len(v), d))
         for i in range(0, PERSON_NUMBER):
             self.num_per_per_day[i] = 0
 
@@ -128,19 +130,28 @@ class VariantEval:
                     n_pers += 1
             self.num_per_per_day[n_pers] += 1
 
+    def is_interesting(self):
+        if  self.num_per_per_day[0] == 0 and self.num_per_per_day[1] == 0 and \
+            self.num_per_per_day[2] == 0:
+            global total
+            total += 1
+            print("total: {}".format(total))
+            return True
+        return False
 
 class SetEval:
     def __init__(self, s):
+        #print("-> {}".format(s))
         assert(len(s)%7 == 0)
         self.set = s
         self.week_number = int(len(s)/7)
         self.day_number = len(s)
         self.variants = []
         self.variants_combinations = []
+        self.interesting_variant = False
         self.compute_variants()
         self.compute_variants_combinations()
         self.evaluate_variants()
-        self.print()
 
     def print(self):
         print("******")
@@ -168,8 +179,8 @@ class SetEval:
         for i in range(len(self.variants_combinations)):
             ve = VariantEval(self.variants_combinations[i], self.day_number)
             ve.count_number_of_person_per_day()
-            ve.print()
-            sys.exit(0)
+            if ve.is_interesting():
+                ve.print()
 
         '''
         new_res = dict()
@@ -179,6 +190,7 @@ class SetEval:
         print("new_res {}".format(new_res))
         '''
         return True
+
 
 if __name__ == '__main__':
 
@@ -205,13 +217,10 @@ if __name__ == '__main__':
         cnt += 1
 
         se = SetEval(s)
-        sys.exit(0)
         valid_res = []
 
 
-
-
-
+        """
         ''' for each variant, detect if the variant is interesting '''
         for i in range(len(all_variants)):
             evaluate_variant_v2(all_variants[i])
@@ -236,3 +245,4 @@ if __name__ == '__main__':
             min_res = int(top['cnt_1p'])
 
     print("find best combination search finished, best result is {} days with one person working".format(min_res))
+    """
