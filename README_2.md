@@ -154,3 +154,52 @@ En considérant ces 66 combinations possibles par variantes, cela nous donne:
 Possibilités d'amélioration de l'algo existant:
 
  - pruner les trames qui sont similaires dans le temps (ex: ABC est la meme chose que BCA. ACB est différent par contre)
+
+
+
+
+ Pas plus de 4 personnes par week end
+
+
+6h30 -> 21h
+1 personne dans tout le service
+
+3 personnes par jour x 12h
+ou
+4 personnes par jour en 7h30
+
+37,5h  de temps de travail actuel
+
+Durée de journée de travail:
+ - max: 12h
+ - min: 7h22 (7,37)
+
+Condition:
+ - au moins 1 personne entre 6h30 et à 21h
+ - 48h max de travail sur 7 jours glissants
+ - En semaine en, le travail est et reste en 7h30.
+   Les horaires: 6h30 / 14h30 ... 13h30 / 21H
+ - Une journée typique: 3 personnes le matin, 2p l'apres midi
+ - Temps partiels dans l'équipe:
+     1 personne à 80%
+     1 personne à 90%
+     2 personnes à 50%
+   (Ne pas considérer les temps partiels dans un 1er temps)
+ - Le trame ne doit pas faire plus de 12 semaines
+ - Un travail le samedi implique le dimanche
+ - Si une journée de plus ae 7h30 de travail le weekend, récup le lundi
+ - Essayer de ne pas changer d'horaire sur le weekend
+
+ - Le matin un peu plus tendu pour la toilette (comprendre qu'il faut privilégier plus de monde le matin)
+
+
+Output:
+ - Soit fournir une trame avec les JCA (marge)
+ - Soit 3x12h le WE mais travail 1 WE/3
+
+Souhaits de l'équipe:
+ - L'équipe prefère bosser 1 weekend sur 3 quitte à faire + d'heure par jour
+   Travailler un week end sur 2 est OK
+
+
+---

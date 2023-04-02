@@ -67,6 +67,7 @@ Samedi et Dimanche:
 '''
 
 from functions import string_to_weekset, weekset_to_string
+from ephad_functions import *
 from itertools import permutations, product
 from os.path import join, isfile
 from os import makedirs, stat
@@ -93,8 +94,16 @@ w12_text_file = join(variant_dir, "12-weeks.txt")
 w12_all_text_file = join(variant_dir, "12-weeks-all-variants.txt")
 
 
-''' 10Mb limit per file when stored '''
-max_disk_usage_per_file = 10000000
+''' 1Mo limit per file when stored '''
+max_disk_usage_per_file = 1000000
+
+
+''' global min/max variables
+actual working time is 37,5h per week. That means 5 days of 7,5h of work.
+Over 4 weeks, it's 150h (4x37,5). '''
+
+min_number_of_hours_per_month = 138
+max_number_of_hours_per_month = 162
 
 
 ''' stats variables '''
@@ -118,6 +127,13 @@ stats_not_exactly_1_out_of_3_working_weekend = 0
 stats_not_exactly_1_out_of_3_working_weekend_used = False
 stats_more_than_one_3_working_days_in_a_row = 0
 stats_more_than_one_3_working_days_in_a_row_used = False
+stats_monday_after_working_weekend = 0
+stats_monday_after_working_weekend_used = False
+stats_min_hours_per_month = 0
+stats_max_hours_per_month = 0
+stats_min_max_hours_per_month_used = False
+stats_evening_then_morning = 0
+stats_evening_then_morning_used = False
 
 
 def reset_pruning_stats():
@@ -141,6 +157,8 @@ def reset_pruning_stats():
     global stats_not_exactly_1_out_of_3_working_weekend_used
     global stats_more_than_one_3_working_days_in_a_row
     global stats_more_than_one_3_working_days_in_a_row_used
+    global stats_monday_after_working_weekend
+    global stats_monday_after_working_weekend_used
     print(" * reset pruning stats")
     stats_more_than_3_consecutive_working_days = 0
     stats_more_than_3_consecutive_working_days_used = False
@@ -162,6 +180,13 @@ def reset_pruning_stats():
     stats_not_exactly_1_out_of_3_working_weekend_used = False
     stats_more_than_one_3_working_days_in_a_row = 0
     stats_more_than_one_3_working_days_in_a_row_used = False
+    stats_monday_after_working_weekend = 0
+    stats_monday_after_working_weekend_used = False
+    stats_min_hours_per_month = 0
+    stats_max_hours_per_month = 0
+    stats_min_max_hours_per_month_used = False
+    stats_evening_then_morning = 0
+    stats_evening_then_morning_used = False
 
 
 def print_pruning_stats():
@@ -175,6 +200,7 @@ def print_pruning_stats():
     global stats_not_enough_or_too_many_working_days_over_n_weeks
     global stats_not_exactly_1_out_of_3_working_weekend
     global stats_more_than_one_3_working_days_in_a_row
+    global stats_monday_after_working_weekend
     if stats_more_than_3_consecutive_working_days_used:
         print(" * stats_more_than_3_consecutive_working_days: {}".format(stats_more_than_3_consecutive_working_days))
     if stats_more_than_4_days_per_week_used:
@@ -195,33 +221,13 @@ def print_pruning_stats():
         print(" * stats_not_exactly_1_out_of_3_working_weekend: {}".format(stats_not_exactly_1_out_of_3_working_weekend))
     if stats_more_than_one_3_working_days_in_a_row_used:
         print(" * stats_more_than_one_3_working_days_in_a_row: {}".format(stats_more_than_one_3_working_days_in_a_row))
-
-
-def printw(s):
-    d = {
-        'm': '   matin',
-        's': '    soir',
-        'a': '12h-6h30',
-        'b': '  12h-8h',
-        'c': '  12h-9h',
-        'z': '   repos'
-    }
-    assert(len(s)%7 == 0)
-    nb_w = int(len(s)/7)
-    print()
-    jours_semaine = 'Lundi Mardi Mercredi Jeudi Vendredi Samedi Dimanche'
-    jours_semaine_formate = ' '.join([j.ljust(11) for j in jours_semaine.split()])
-    print(jours_semaine_formate)
-    for i in range(0, nb_w):
-        for j in range(0, 7):
-            print("{}".format(d[s[j+7*i]]).ljust(12), end='')
-        print()
-    print(" -- days:{}/{}".format(7*nb_w - s.count('z'), len(s)), end='')
-    print(" hours: {}h".format(get_number_of_hours(s)))
-
-
-def is_working_day(l):
-    return l in ['m','s','a','b','c']
+    if stats_monday_after_working_weekend_used:
+        print(" * stats_monday_after_working_weekend: {}".format(stats_monday_after_working_weekend))
+    if stats_min_max_hours_per_month_used:
+        print(" * stats_min_hours_per_month: {}".format(stats_min_hours_per_month))
+        print(" * stats_max_hours_per_month: {}".format(stats_max_hours_per_month))
+    if stats_evening_then_morning_used:
+        print(" * stats_evening_then_morning: {}".format(stats_evening_then_morning))
 
 
 def generate_1week_variant():
@@ -239,16 +245,16 @@ def generate_1week_variant():
     print(' * [1week] Number of possible permutations: {}'.format(len(all_1w_raw)))
 
 
-def get_number_of_hours(s) -> float:
-    d = {
-        'a': 12,
-        'b': 12,
-        'c': 12,
-        'm': 7.5,
-        's': 7.5,
-        'z': 0
-    }
-    return sum(d[val] for val in s)
+def set_has_evening_then_morning(s) -> bool:
+    global stats_evening_then_morning
+    global stats_evening_then_morning_used
+    stats_evening_then_morning_used = True
+    assert(len(s)%7 == 0)
+    for i in range(0, len(s)-1):
+        if s[i] == 's' and s[i+1] == 'm':
+            return True
+    return False
+
 
 def set_has_more_than_48h_over_7_moving_days(s) -> bool:
     global stats_more_than_48h_working_over_7_moving_days
@@ -256,7 +262,7 @@ def set_has_more_than_48h_over_7_moving_days(s) -> bool:
     stats_more_than_48h_working_over_7_moving_days_used = True
     ''' return true if a more than 48h of work over 7 rolling days '''
     assert(len(s)%7 == 0)
-    for i in range(0, len(s)-7):
+    for i in range(0, len(s)-6):
         ss = tuple(s[i:7+i])
         r = get_number_of_hours(ss)
         if r > 48:
@@ -283,41 +289,54 @@ def set_has_two_working_week_ends_in_a_row(s) -> bool:
     assert((len(s) % 7) == 0)
     assert(len(s) > 0)
     n_w = int(len(s)/7)
-    prev = ""
-    for i in range(0, n_w):
-        if prev == s[7*i+6] and is_working_day(prev):
+    if n_w == 1:
+        return False
+    prev = s[6]
+    for i in range(1, n_w):
+        nextwe = s[7*i+6]
+        if is_12h_working_day(prev) and is_12h_working_day(nextwe):
             stats_two_working_week_ends_in_a_row += 1
             return True
-        prev = s[7*i+6]
+        prev = nextwe
     return False
 
 
-def prune_1week_variant():
-    print(' * Pruning 1w variant')
+def set_has_monday_after_working_weekend(s) -> bool:
+    global stats_monday_after_working_weekend
+    global stats_monday_after_working_weekend_used
+    stats_monday_after_working_weekend_used = True
+    assert((len(s) % 7) == 0)
+    assert(len(s) > 0)
+    n_w = int(len(s)/7)
+    for i in range(0, n_w):
+        idx = 7*i+6
+        if is_12h_working_day(s[idx]) and is_working_day(s[(idx+1)%len(s)]):
+            stats_monday_after_working_weekend += 1
+            return True
+    return False
+
+
+def set_out_of_min_max_working_hours_per_month(s):
+    global stats_min_hours_per_month
+    global stats_max_hours_per_month
+    global stats_min_max_hours_per_month_used
+    stats_min_max_hours_per_month_used = True
+    assert(len(s) == 7*4)
+    h = get_number_of_hours(s)
+    if h < min_number_of_hours_per_month:
+        stats_min_hours_per_month += 1
+        return True
+    if h > max_number_of_hours_per_month:
+        stats_max_hours_per_month += 1
+        return True
+    return False
+
+def prune_weeks_variant(num_week, infile, outfile):
+    assert(num_week in [1,2,4,8,12])
+    print(' * Pruning {} weeks variant'.format(num_week))
     cnt = 0
-    with open(w1_text_file, 'w') as out:
-        with open(w1_all_text_file) as f:
-            for line in f:
-                s = string_to_weekset(line)
-
-                if set_has_more_than_48h_over_7_moving_days(s):
-                    continue
-                if set_has_saturday_nor_sunday(s):
-                    continue
-
-                out.write(weekset_to_string(s) + '\n')
-                cnt += 1
-
-    print_pruning_stats()
-    reset_pruning_stats()
-    print(' * [1week] After pruning, number of variants: {}'.format(cnt))
-
-
-def prune_2weeks_variant():
-    print(' * Pruning 2w variant')
-    cnt = 0
-    with open(w2_text_file, 'w') as out:
-        with open(w2_all_text_file) as f:
+    with open(outfile, 'w') as out:
+        with open(infile) as f:
             for line in f:
                 s = string_to_weekset(line)
 
@@ -327,12 +346,22 @@ def prune_2weeks_variant():
                 if set_has_two_working_week_ends_in_a_row(s):
                     continue
 
+                if set_has_monday_after_working_weekend(s):
+                    continue
+
+                if set_has_evening_then_morning(s):
+                    continue
+
+                if num_week == 4:
+                    if set_out_of_min_max_working_hours_per_month(s):
+                        continue
+
                 out.write(weekset_to_string(s) + '\n')
                 cnt += 1
 
     print_pruning_stats()
     reset_pruning_stats()
-    print(' * [1week] After pruning, number of variants: {}'.format(cnt))
+    print(' * [{}-week] After pruning, number of variants: {}'.format(num_week, cnt))
 
 
 
@@ -379,7 +408,7 @@ if __name__ == "__main__":
     ''' 1 week part '''
     if not isfile(w1_text_file):
         generate_1week_variant()
-        prune_1week_variant()
+        prune_weeks_variant(1, w1_all_text_file, w1_text_file)
     else:
         print(" * file {} already exists, using it".format(w1_text_file))
 
@@ -387,9 +416,30 @@ if __name__ == "__main__":
     if not isfile(w2_all_text_file):
         assemble_variants_two_by_two(2, w1_text_file, 1, w1_text_file, 1, w2_all_text_file)
     if not isfile(w2_text_file):
-        prune_2weeks_variant()
+        prune_weeks_variant(2, w2_all_text_file, w2_text_file)
     else:
         print(" * file {} already exists, using it".format(w2_text_file))
 
-    # for w in all_1w_pruned:
-        # printw(w)
+    ''' 4 weeks part '''
+    if not isfile(w4_all_text_file):
+        assemble_variants_two_by_two(4, w2_text_file, 2, w2_text_file, 2, w4_all_text_file)
+    if not isfile(w4_text_file):
+        prune_weeks_variant(4, w4_all_text_file, w4_text_file)
+    else:
+        print(" * file {} already exists, using it".format(w4_text_file))
+
+    ''' 8 weeks part '''
+    if not isfile(w8_all_text_file):
+        assemble_variants_two_by_two(8, w4_text_file, 4, w4_text_file, 4, w8_all_text_file)
+    if not isfile(w8_text_file):
+        prune_weeks_variant(8, w8_all_text_file, w8_text_file)
+    else:
+        print(" * file {} already exists, using it".format(w8_text_file))
+
+    ''' 12 weeks parts '''
+    if not isfile(w12_all_text_file):
+        assemble_variants_two_by_two(12, w8_text_file, 8, w4_text_file, 4, w12_all_text_file)
+    if not isfile(w12_text_file):
+        prune_weeks_variant(12, w12_all_text_file, w12_text_file)
+    else:
+        print(" * file {} already exists, using it".format(w12_text_file))
