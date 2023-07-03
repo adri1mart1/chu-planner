@@ -60,9 +60,7 @@ Du lundi au vendredi:
  - s: soir
  - z: off
 Samedi et Dimanche:
- - a: 12h-6h30
- - b: 12h-8h
- - c: 12h-9h
+ - a: 12h
  - z: off
 '''
 
@@ -102,8 +100,8 @@ max_disk_usage_per_file = 1000000
 actual working time is 37,5h per week. That means 5 days of 7,5h of work.
 Over 4 weeks, it's 150h (4x37,5). '''
 
-min_number_of_hours_per_month = 138
-max_number_of_hours_per_month = 162
+min_number_of_hours_per_month = 126
+max_number_of_hours_per_month = 174
 
 
 ''' stats variables '''
@@ -234,7 +232,7 @@ def generate_1week_variant():
     global all_1w_raw
     all_mon_to_fri_raw = set(permutations("".join("m"*5 + "s"*5 + "z"*5), 5))
     # we consider at the moment we do the same shift between saturday and sunday
-    all_sat_to_sun_raw = {('a','a'), ('b','b'), ('c','c'), ('z','z')}
+    all_sat_to_sun_raw = {('a','a'), ('z','z')}
     all_week = list(set(product(all_mon_to_fri_raw, all_sat_to_sun_raw)))
     for w in all_week:
         all_1w_raw.append(tuple(sum(w, ())))
@@ -331,6 +329,32 @@ def set_out_of_min_max_working_hours_per_month(s):
         return True
     return False
 
+
+def set_has_not_1_out_3_working_weekend(s):
+    global stats_not_exactly_1_out_of_3_working_weekend_used
+    global stats_not_exactly_1_out_of_3_working_weekend
+    stats_not_exactly_1_out_of_3_working_weekend_used = True
+    assert(len(s)%7 == 0)
+    n_w = int(len(s)/7)
+    assert(n_w >= 4)
+    # print_ephad_short(s)
+    pattern = [s[6], s[6+7], s[6+14]]
+    if pattern.count('z') != 2 or pattern.count('a') != 1:
+        # print('KO, first 3 weeks doesnt respect pattern {}'.format(pattern))
+        return True
+    # print("pattern: {}".format(pattern))
+    # print("num_week: {}".format(n_w))
+
+    for i in range(2, n_w):
+        # print("checking {}".format(i))
+        if s[7*i+6] != pattern[i%len(pattern)]:
+            # print('KO, doesnt respect pattern {}'.format(pattern))
+            return True
+
+    # print("OK")
+    return False
+
+
 def prune_weeks_variant(num_week, infile, outfile):
     assert(num_week in [1,2,4,8,12])
     print(' * Pruning {} weeks variant'.format(num_week))
@@ -346,8 +370,12 @@ def prune_weeks_variant(num_week, infile, outfile):
                 if set_has_two_working_week_ends_in_a_row(s):
                     continue
 
-                if set_has_monday_after_working_weekend(s):
-                    continue
+                # if set_has_monday_after_working_weekend(s):
+                #     continue
+
+                if num_week >= 4:
+                    if set_has_not_1_out_3_working_weekend(s):
+                        continue
 
                 if set_has_evening_then_morning(s):
                     continue

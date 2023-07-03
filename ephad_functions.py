@@ -24,11 +24,9 @@ def get_number_of_hours(s) -> float:
 
 def printw_ephad(s):
     d = {
-        'm': '   matin',
-        's': '    soir',
-        'a': '12h-6h30',
-        'b': '  12h-8h',
-        'c': '  12h-9h',
+        'm': ' matin',
+        's': '  soir',
+        'a': '   12h',
         'z': '   repos'
     }
     assert(len(s)%7 == 0)

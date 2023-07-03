@@ -117,26 +117,25 @@ class VariantEval:
         self.matin = 0
         self.soir = 1
         self.repos = 2
-        self.douzeh_6h30 = 3
-        self.douzeh_8h00 = 4
-        self.douzeh_9h00 = 5
+        self.douzeh = 3
         # init variable
         # print('day number: {}'.format(self.day_number))
         for i in range(0, self.day_number):
-            self.typology_per_day.append([0,0,0,0,0,0])
+            self.typology_per_day.append([0,0,0,0])
+
+    # def print_variant(self):
+    #     for i in range() # TODO3
 
     def print(self):
-        # print("Variant: {}".format(self.num_per_per_day))
+        print("Variant: {}".format(self.variant))
         print(self.typology_per_day)
 
         for i in range(0, self.day_number):
-            print('Day {}: m:{} s:{} z:{} 12h6h30:{} 12h8h00:{} 12h9h00:{}'.format(i,
+            print('Day {}: m:{} s:{} z:{} 12h:{}'.format(i,
                 self.typology_per_day[i][self.matin],
                 self.typology_per_day[i][self.soir],
                 self.typology_per_day[i][self.repos],
-                self.typology_per_day[i][self.douzeh_6h30],
-                self.typology_per_day[i][self.douzeh_8h00],
-                self.typology_per_day[i][self.douzeh_9h00]
+                self.typology_per_day[i][self.douzeh]
             ))
 
         print('details:')
@@ -165,21 +164,20 @@ class VariantEval:
         for i in range(0, self.day_number):
             if i%7 in [0,1,2,3,4]:
                 if self.typology_per_day[i][self.matin] < 3:
-                    return False
+                    # print('not enough morning')
+                    return 1
                 if self.typology_per_day[i][self.soir] < 2:
-                    return False
+                    # print('not enough evening')
+                    return 2
 
             ''' du samedi au dimanche il faut:
             - 1p sur chaque cycle de 12h
             '''
             if i%7 in [5,6]:
-                if self.typology_per_day[i][self.douzeh_6h30] < 1:
-                    return False
-                if self.typology_per_day[i][self.douzeh_8h00] < 1:
-                    return False
-                if self.typology_per_day[i][self.douzeh_9h00] < 1:
-                    return False
-        return True
+                if self.typology_per_day[i][self.douzeh] < 3:
+                    # print('not enough weekend')
+                    return 3
+        return 0
 
 
 class SetEval:
@@ -191,10 +189,11 @@ class SetEval:
         self.variants = []
         self.variants_combinations = []
         self.interesting_variant = False
+        self.reasons = [0,0,0,0]
         self.compute_variants()
         self.compute_variants_combinations()
         self.evaluate_variants()
-        # self.print()
+        self.print()
 
     def print(self):
         print("******")
@@ -202,6 +201,7 @@ class SetEval:
         print("Week number: {}".format(self.week_number))
         print("Number of variants: {}".format(len(self.variants)))
         print("Number of combinations: {}".format(len(self.variants_combinations)))
+        print("Combinations fail because of missing morning: {} evening: {} weekend: {}".format(self.reasons[1], self.reasons[2], self.reasons[3]))
         print("******")
 
     def compute_variants(self):
@@ -219,12 +219,16 @@ class SetEval:
         self.variants_combinations = list(combinations(self.variants, PERSON_NUMBER))
 
     def evaluate_variants(self):
+        self.reasons = [0,0,0,0]
         for i in range(len(self.variants_combinations)):
             ve = VariantEval(self.variants_combinations[i], self.day_number)
             ve.count_number_of_person_per_day()
-            if ve.is_interesting():
+            # ve.print()
+            r = ve.is_interesting()
+            self.reasons[r] += 1
+            if r == 0:
                 print("**********************************************************************")
-                ve.print()
+                input()
 
         '''
         new_res = dict()
