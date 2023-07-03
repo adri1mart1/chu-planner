@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+import sys
+
+sys.path.append('../../00-common/src/')
 from functions import printw, string_to_weekset, weekset_to_string, count_subtuple_in_tuple
 from itertools import permutations
 from collections import Counter
@@ -32,7 +35,7 @@ min_nb_working_days_per_2months = 24
 max_nb_working_days_per_2months = 26
 
 
-results_dir = "output"
+results_dir = "../output"
 variant_dir = join(results_dir, "variants_12w")
 w1_text_file = join(variant_dir, "1-week.txt")
 w1_all_text_file = join(variant_dir, "1-week-all-variants.txt")

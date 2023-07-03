@@ -64,6 +64,10 @@ Samedi et Dimanche:
  - z: off
 '''
 
+import sys
+sys.path.append('../../00-common/src/')
+
+
 from functions import string_to_weekset, weekset_to_string
 from ephad_functions import *
 from itertools import permutations, product
@@ -78,7 +82,7 @@ all_1w_raw = []
 all_1w_pruned = []
 
 
-results_dir = "output_ephad"
+results_dir = "../output"
 variant_dir = join(results_dir, "variants_12w")
 w1_all_text_file = join(variant_dir, "1-week-all.txt")
 w1_text_file = join(variant_dir, "1-week.txt")

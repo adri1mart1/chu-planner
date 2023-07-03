@@ -137,16 +137,6 @@ En considérant ces 66 combinations possibles par variantes, cela nous donne:
         Number of day with 10 person: 0
 
 
-
-
-
-
-
-
-
-
-
-
  *****************************
  *****************************
  *****************************
@@ -154,9 +144,6 @@ En considérant ces 66 combinations possibles par variantes, cela nous donne:
 Possibilités d'amélioration de l'algo existant:
 
  - pruner les trames qui sont similaires dans le temps (ex: ABC est la meme chose que BCA. ACB est différent par contre)
-
-
-
 
  Pas plus de 4 personnes par week end
 
@@ -200,6 +187,5 @@ Output:
 Souhaits de l'équipe:
  - L'équipe prefère bosser 1 weekend sur 3 quitte à faire + d'heure par jour
    Travailler un week end sur 2 est OK
-
 
 ---

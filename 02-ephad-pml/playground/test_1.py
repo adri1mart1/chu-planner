@@ -1,0 +1,14 @@
+
+from planning_ephad import set_has_not_1_out_3_working_weekend
+from functions import string_to_weekset
+
+print("hello")
+
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszzmzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszz"))
+set_has_not_1_out_3_working_weekend(string_to_weekset("mzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszzmzmmszz"))

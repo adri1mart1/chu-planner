@@ -1,19 +1,23 @@
 #!/usr/bin/python3
 
+import sys
+sys.path.append('../../00-common/src/')
+
 from itertools import combinations
 from functions import printw, load_wset_from_file, save_to_file
 from os.path import join
 from os import makedirs
-import sys
 
 
 THREAD_TOTAL_WEEK_NUMBER = 12
-PERSON_NUMBER = 10
+PERSON_NUMBER = 5
 
+''' 1 person included '''
 MIN_PERSON_NUMBER_WORKING_PER_WEEKEND = 1
-MAX_PERSON_NUMBER_WORKING_PER_WEEKEND = 10
+''' 2 persons included '''
+MAX_PERSON_NUMBER_WORKING_PER_WEEKEND = 2
 
-MIN_PERSON_NUMBER_WORKING_PER_WORKING_DAY = 2
+MIN_PERSON_NUMBER_WORKING_PER_WORKING_DAY = 1
 MAX_WEEKLY_WORKING_HOURS = 48
 ONE_DAY_WORKING_HOUR = 12
 WORKING_DAY = 'J'
@@ -21,7 +25,7 @@ WORKING_DAY = 'J'
 variant_list = []
 valid_res = []
 
-results_dir = "output"
+results_dir = "../output"
 variant_dir = join(results_dir, "variants_12w")
 combination_dir = join(results_dir, "combinations")
 weeks_text_file = join(variant_dir, "12-weeks.txt")
@@ -63,7 +67,6 @@ def detect_if_one_person_per_working_day(v):
 
 
 def count_number_of_one_person_per_day_per_working_day(v) -> int:
-    assert(len(v) > 0)
     end_res = 0
     week_number = int(len(v[0])/7)
     for i in range(0, week_number):
@@ -75,8 +78,6 @@ def count_number_of_one_person_per_day_per_working_day(v) -> int:
             if res == 1:
                 end_res += 1
     return end_res
-
-
 
 
 def evaluate_variant(v) -> bool:
@@ -97,6 +98,17 @@ def evaluate_variant(v) -> bool:
     valid_res.append(new_res)
     return True
 
+
+def detect_if_thread_respect_max_hours_smooth(th):
+    m = MAX_WEEKLY_WORKING_HOURS / ONE_DAY_WORKING_HOUR
+    for i in range(0, len(th)-7):
+        cnt = th.count(WORKING_DAY, i, i+7)
+        if cnt > m:
+            print("Too many hours {}h detected at index: {}".format(cnt*12, i))
+            return False
+    return True
+
+
 def get_shift_index(th) -> int:
     idx = 1
     for v in variant_list:
@@ -104,92 +116,6 @@ def get_shift_index(th) -> int:
             return idx
         idx += 1
     raise ValueError("get_shift_index failed with variant_list {} and th {}".format(variant_list, th))
-
-total = 0
-
-class VariantEval:
-    def __init__(self, v, d):
-        self.variant = v
-        self.day_number = d
-        self.num_per_per_day = dict()
-        # init variable
-        # print("variant: {} len:{} d:{}".format(v, len(v), d))
-        for i in range(0, PERSON_NUMBER):
-            self.num_per_per_day[i] = 0
-
-    def print(self):
-        print("Variant: {}".format(self.num_per_per_day))
-        for i in range(0, PERSON_NUMBER):
-            print("Number of day with {} person: {}".format(i, self.num_per_per_day[i]))
-
-    def count_number_of_person_per_day(self):
-        for i in range(0, self.day_number):
-            n_pers = 0
-            for p in range(0, PERSON_NUMBER):
-                if self.variant[p][i] == WORKING_DAY:
-                    n_pers += 1
-            self.num_per_per_day[n_pers] += 1
-
-    def is_interesting(self):
-        if  self.num_per_per_day[0] == 0 and self.num_per_per_day[1] == 0 and \
-            self.num_per_per_day[2] == 0:
-            global total
-            total += 1
-            print("total: {}".format(total))
-            return True
-        return False
-
-class SetEval:
-    def __init__(self, s):
-        #print("-> {}".format(s))
-        assert(len(s)%7 == 0)
-        self.set = s
-        self.week_number = int(len(s)/7)
-        self.day_number = len(s)
-        self.variants = []
-        self.variants_combinations = []
-        self.interesting_variant = False
-        self.compute_variants()
-        self.compute_variants_combinations()
-        self.evaluate_variants()
-
-    def print(self):
-        print("******")
-        printw(self.set)
-        print("Week number: {}".format(self.week_number))
-        print("Number of variants: {}".format(len(self.variants)))
-        print("Number of combinations: {}".format(len(self.variants_combinations)))
-        print("******")
-
-    def compute_variants(self):
-        for i in range(0, self.week_number):
-            self.variants.append(self.set[7*i:] + self.set[:7*i])
-
-    def compute_variants_combinations(self):
-        '''
-        get all variants based on the number of person working
-        ex: say we have 2 persons working and we have the variant_list defined above,
-        we will have these variants:
-        personA: Th1 personB: Th2
-        personA: Th1 personB: Th3
-        personA: Th2 personB: Th3 '''
-        self.variants_combinations = list(combinations(self.variants, PERSON_NUMBER))
-
-    def evaluate_variants(self):
-        for i in range(len(self.variants_combinations)):
-            ve = VariantEval(self.variants_combinations[i], self.day_number)
-            ve.count_number_of_person_per_day()
-            if ve.is_interesting():
-                ve.print()
-
-        '''
-        new_res = dict()
-        new_res['person_cnt'] = cnt
-        new_res['thread'] = v
-        valid_res.append(new_res)
-        print("new_res {}".format(new_res))
-        '''
-        return True
 
 
 if __name__ == '__main__':
@@ -207,7 +133,7 @@ if __name__ == '__main__':
     assert(len(wset) >= 0)
 
     ''' number of week based on the first element '''
-
+    n_w = int(len(next(iter(wset)))/7)
 
     cnt = 0
     lenwset = len(wset)
@@ -216,15 +142,25 @@ if __name__ == '__main__':
     for s in wset:
         cnt += 1
 
-        se = SetEval(s)
+        variant_list = []
         valid_res = []
 
+        ''' split each weeks '''
+        for i in range(0, n_w):
+            variant_list.append(s[7*i:] + s[:7*i])
 
-        """
+        '''
+        get all variants based on the number of person working
+        ex: say we have 2 persons working and we have the variant_list defined above,
+        we will have these variants:
+        personA: Th1 personB: Th2
+        personA: Th1 personB: Th3
+        personA: Th2 personB: Th3 '''
+        all_variants = list(combinations(variant_list, PERSON_NUMBER))
+
         ''' for each variant, detect if the variant is interesting '''
         for i in range(len(all_variants)):
-            evaluate_variant_v2(all_variants[i])
-
+            evaluate_variant(all_variants[i])
 
         print("{}/{} - possible variants: {}/{}".format(cnt, lenwset, len(valid_res), len(all_variants)))
 
@@ -245,4 +181,3 @@ if __name__ == '__main__':
             min_res = int(top['cnt_1p'])
 
     print("find best combination search finished, best result is {} days with one person working".format(min_res))
-    """

@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+import sys
+sys.path.append('../../00-common/src/')
+
+
 from itertools import combinations
 from functions import printw, load_wset_from_file, save_to_file
 from ephad_functions import *
@@ -22,7 +26,7 @@ WORKING_DAY = 'J'
 variant_list = []
 valid_res = []
 
-results_dir = "output_ephad"
+results_dir = "../output"
 variant_dir = join(results_dir, "variants_12w")
 combination_dir = join(results_dir, "combinations")
 weeks_text_file = join(variant_dir, "12-weeks.txt")
