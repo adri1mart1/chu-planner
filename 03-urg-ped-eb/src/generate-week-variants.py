@@ -45,7 +45,9 @@ max_disk_usage_per_file = 1000000
 
 ''' global min/max variables
 actual working time is 37,5h per week. That means 5 days of 7,5h of work.
-Over 4 weeks, it's 150h (4x37,5). '''
+Over 4 weeks, it's 150h (4x37,5).
+We choose to be 150h +/- 24h as it's max 2 days of 12h differences
+'''
 
 min_number_of_hours_per_month = 126
 max_number_of_hours_per_month = 174
@@ -104,13 +106,18 @@ def reset_pruning_stats():
     global stats_more_than_one_3_working_days_in_a_row_used
     global stats_monday_after_working_weekend
     global stats_monday_after_working_weekend_used
+    global stats_min_hours_per_month
+    global stats_max_hours_per_month
+    global stats_min_max_hours_per_month_used
+    global stats_evening_then_morning
+    global stats_evening_then_morning_used
     print(" * reset pruning stats")
     stats_more_than_3_consecutive_working_days = 0
     stats_more_than_3_consecutive_working_days_used = False
     stats_more_than_4_days_per_week = 0
     stats_more_than_4_days_per_week_used = False
-    stats_saturday_nor_sunday = 0
-    stats_saturday_nor_sunday_used = False
+    stats_saturday_same_as_sunday = 0
+    stats_saturday_same_as_sunday_used = False
     stats_not_enough_days_off_before_or_after_working_days = 0
     stats_not_enough_days_off_before_or_after_working_days_used = False
     stats_too_many_single_working_days = 0
@@ -135,17 +142,6 @@ def reset_pruning_stats():
 
 
 def print_pruning_stats():
-    global stats_more_than_3_consecutive_working_days
-    global stats_more_than_4_days_per_week
-    global stats_saturday_same_as_sunday
-    global stats_not_enough_days_off_before_or_after_working_days
-    global stats_too_many_single_working_days
-    global stats_more_than_48h_working_over_7_moving_days
-    global stats_two_working_week_ends_in_a_row
-    global stats_not_enough_or_too_many_working_days_over_n_weeks
-    global stats_not_exactly_1_out_of_3_working_weekend
-    global stats_more_than_one_3_working_days_in_a_row
-    global stats_monday_after_working_weekend
     if stats_saturday_same_as_sunday_used:
         print(" * stats_saturday_same_as_sunday: {}".format(stats_saturday_same_as_sunday))
     if stats_more_than_3_consecutive_working_days_used:
@@ -331,9 +327,9 @@ def prune_weeks_variant(num_week, infile, outfile):
                 # if set_has_monday_after_working_weekend(s):
                 #     continue
 
-                if num_week >= 4:
-                    if set_has_not_1_out_3_working_weekend(s):
-                        continue
+                # if num_week >= 4:
+                #    if set_has_not_1_out_3_working_weekend(s):
+                #        continue
 
                 if num_week == 4:
                     if set_out_of_min_max_working_hours_per_month(s):
@@ -345,7 +341,6 @@ def prune_weeks_variant(num_week, infile, outfile):
     print_pruning_stats()
     reset_pruning_stats()
     print(' * [{}-week] After pruning, number of variants: {}'.format(num_week, cnt))
-
 
 
 def assemble_variants_two_by_two(out_weeklen, in_file1, weeklen_file1, in_file2, weeklen_file2, out_file):
@@ -391,6 +386,8 @@ if __name__ == "__main__":
     ''' 1 week raw '''
     if not isfile(w1_all_text_file):
         generate_1week_variant()
+    else:
+        print(" * file {} already exists, using it".format(w1_all_text_file))
 
     ''' 1 week part '''
     if not isfile(w1_text_file):
@@ -413,8 +410,6 @@ if __name__ == "__main__":
         prune_weeks_variant(4, w4_all_text_file, w4_text_file)
     else:
         print(" * file {} already exists, using it".format(w4_text_file))
-
-    sys.exit(0)
 
     ''' 8 weeks part '''
     if not isfile(w8_all_text_file):
