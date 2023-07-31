@@ -477,6 +477,7 @@ def prune_weeks_variant(num_week, infile, outfile):
                 out.write(weekset_to_string(s) + '\n')
                 cnt += 1
 
+
     print_pruning_stats()
     reset_pruning_stats()
     print(' * [{}-week] After pruning, number of variants: {}'.format(num_week, cnt))
