@@ -11,7 +11,7 @@ sys.path.append('../../00-common/src/')
 
 
 from functions import string_to_weekset, weekset_to_string
-from as_ptmc_functions import get_number_of_hours, is_a_working_day
+from as_ptmc_functions import get_number_of_hours, is_a_working_day, printw_asptmc
 from itertools import permutations, product
 from os.path import join, isfile
 from os import makedirs, stat
@@ -31,14 +31,16 @@ w1_all_text_file = join(variant_dir, "jour-1-week-all.txt")
 w1_text_file = join(variant_dir, "jour-1-week.txt")
 w2_text_file = join(variant_dir, "jour-2-weeks.txt")
 w2_all_text_file = join(variant_dir, "jour-2-weeks-all-variants.txt")
-w4_text_file = join(variant_dir, "jour-4-weeks.txt")
-w4_all_text_file = join(variant_dir, "jour-4-weeks-all-variants.txt")
-w8_text_file = join(variant_dir, "jour-8-weeks.txt")
-w8_all_text_file = join(variant_dir, "jour-8-weeks-all-variants.txt")
-# w12_text_file = join(variant_dir, "jour-12-weeks.txt")
-# w12_all_text_file = join(variant_dir, "jour-12-weeks-all-variants.txt")
-w16_text_file = join(variant_dir, "jour-16-weeks.txt")
-w16_all_text_file = join(variant_dir, "jour-16-weeks-all-variants.txt")
+w3_text_file = join(variant_dir, "jour-3-weeks.txt")
+w3_all_text_file = join(variant_dir, "jour-3-weeks-all-variants.txt")
+w6_text_file = join(variant_dir, "jour-6-weeks.txt")
+w6_all_text_file = join(variant_dir, "jour-6-weeks-all-variants.txt")
+w12_text_file = join(variant_dir, "jour-12-weeks.txt")
+w12_all_text_file = join(variant_dir, "jour-12-weeks-all-variants.txt")
+w15_text_file = join(variant_dir, "jour-15-weeks.txt")
+w15_all_text_file = join(variant_dir, "jour-15-weeks-all-variants.txt")
+w18_text_file = join(variant_dir, "jour-18-weeks.txt")
+w18_all_text_file = join(variant_dir, "jour-18-weeks-all-variants.txt")
 
 
 
@@ -289,27 +291,33 @@ def set_has_not_1_out_3_working_weekend(s):
     stats_not_exactly_1_out_of_3_working_weekend_used = True
     assert(len(s)%7 == 0)
     n_w = int(len(s)/7)
-    assert(n_w >= 4)
+    assert(n_w >= 6)
+    assert(n_w%3 == 0)
+    # printw_asptmc(s)
     # print_ephad_short(s)
-    pattern = [s[6], s[6+7], s[6+14]]
-    if pattern.count('z') != 2 or pattern.count('a') != 1:
-        # print('KO, first 3 weeks doesnt respect pattern {}'.format(pattern))
+    pattern = [is_a_working_day(s[6]), is_a_working_day(s[6+7]), is_a_working_day(s[6+14])]
+    # print("pattern: {}".format(pattern))
+    if pattern.count(True) != 1 or pattern.count(False) != 2:
+        # print('KO1 {}'.format(s))
+        stats_not_exactly_1_out_of_3_working_weekend += 1
         return True
     # print("pattern: {}".format(pattern))
     # print("num_week: {}".format(n_w))
 
-    for i in range(2, n_w):
-        # print("checking {}".format(i))
-        if s[7*i+6] != pattern[i%len(pattern)]:
-            # print('KO, doesnt respect pattern {}'.format(pattern))
+    for i in range(3, n_w):
+        # print("checking {} -> {}:{} --> {}:{}".format(i, 7*i+6, s[7*i+6], (i-3)%len(pattern), pattern[(i-3)%len(pattern)]))
+        # print("is_a_working_day: {} pattern: {}".format(is_a_working_day(s[7*i+6]), pattern[(i-3)%len(pattern)]))
+        if is_a_working_day(s[7*i+6]) != pattern[(i-3)%len(pattern)]:
+            # print('KO2 {}'.format(s))
+            stats_not_exactly_1_out_of_3_working_weekend += 1
             return True
 
-    # print("OK")
+    # print("OK {}".format(s))
     return False
 
 
 def prune_weeks_variant(num_week, infile, outfile):
-    assert(num_week in [1,2,4,8,16])
+    assert(num_week in [1,2,3,6,12,15,18])
     print(' * Pruning {} weeks variant'.format(num_week))
     cnt = 0
     with open(outfile, 'w') as out:
@@ -329,6 +337,10 @@ def prune_weeks_variant(num_week, infile, outfile):
 
                 if num_week == 4:
                     if set_out_of_min_max_working_hours_per_month(s):
+                        continue
+
+                if num_week in [6, 9, 12, 15, 18]:
+                    if set_has_not_1_out_3_working_weekend(s):
                         continue
 
                 out.write(weekset_to_string(s) + '\n')
@@ -399,27 +411,42 @@ if __name__ == "__main__":
     else:
         print(" * file {} already exists, using it".format(w2_text_file))
 
-    ''' 4 weeks part '''
-    if not isfile(w4_all_text_file):
-        assemble_variants_two_by_two(4, w2_text_file, 2, w2_text_file, 2, w4_all_text_file)
-    if not isfile(w4_text_file):
-        prune_weeks_variant(4, w4_all_text_file, w4_text_file)
+    ''' 3 weeks part '''
+    if not isfile(w3_all_text_file):
+        assemble_variants_two_by_two(3, w2_text_file, 2, w1_text_file, 1, w3_all_text_file)
+    if not isfile(w3_text_file):
+        prune_weeks_variant(3, w3_all_text_file, w3_text_file)
     else:
-        print(" * file {} already exists, using it".format(w4_text_file))
+        print(" * file {} already exists, using it".format(w3_text_file))
 
-    ''' 8 weeks part '''
-    if not isfile(w8_all_text_file):
-        assemble_variants_two_by_two(8, w4_text_file, 4, w4_text_file, 4, w8_all_text_file)
-    if not isfile(w8_text_file):
-        prune_weeks_variant(8, w8_all_text_file, w8_text_file)
+    ''' 6 weeks part '''
+    if not isfile(w6_all_text_file):
+        assemble_variants_two_by_two(6, w3_text_file, 3, w3_text_file, 3, w6_all_text_file)
+    if not isfile(w6_text_file):
+        prune_weeks_variant(6, w6_all_text_file, w6_text_file)
     else:
-        print(" * file {} already exists, using it".format(w8_text_file))
+        print(" * file {} already exists, using it".format(w6_text_file))
 
-    ''' 16 weeks parts '''
-    if not isfile(w16_all_text_file):
-        assemble_variants_two_by_two(16, w8_text_file, 8, w8_text_file, 8, w16_all_text_file)
-    if not isfile(w16_text_file):
-        prune_weeks_variant(16, w16_all_text_file, w16_text_file)
+    ''' 12 weeks parts '''
+    if not isfile(w12_all_text_file):
+        assemble_variants_two_by_two(12, w6_text_file, 6, w6_text_file, 6, w12_all_text_file)
+    if not isfile(w12_text_file):
+        prune_weeks_variant(12, w12_all_text_file, w12_text_file)
     else:
-        print(" * file {} already exists, using it".format(w16_text_file))
+        print(" * file {} already exists, using it".format(w12_text_file))
 
+    ''' 15 weeks parts '''
+    if not isfile(w15_all_text_file):
+        assemble_variants_two_by_two(15, w12_text_file, 12, w3_text_file, 3, w15_all_text_file)
+    if not isfile(w15_text_file):
+        prune_weeks_variant(15, w15_all_text_file, w15_text_file)
+    else:
+        print(" * file {} already exists, using it".format(w15_text_file))
+
+    ''' 18 weeks parts '''
+    if not isfile(w18_all_text_file):
+        assemble_variants_two_by_two(18, w15_text_file, 15, w3_text_file, 3, w18_all_text_file)
+    if not isfile(w18_text_file):
+        prune_weeks_variant(18, w18_all_text_file, w18_text_file)
+    else:
+        print(" * file {} already exists, using it".format(w18_text_file))

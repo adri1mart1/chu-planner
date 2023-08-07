@@ -9,7 +9,7 @@ from os.path import isfile
 
 if __name__ == "__main__":
 
-    file = "../output/variants_12w/jour-3-weeks.txt"
+    file = "../output/variants_12w/jour-18-weeks.txt"
 
     if not isfile(file):
         raise ValueError("Error, file {} missing".format(file))
