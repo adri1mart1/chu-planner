@@ -9,7 +9,7 @@ from os.path import isfile
 
 if __name__ == "__main__":
 
-    file = "../output/variants_12w/jour-18-weeks.txt"
+    file = "../output/variants_12w/alt-18-weeks.txt"
 
     if not isfile(file):
         raise ValueError("Error, file {} missing".format(file))
@@ -18,4 +18,4 @@ if __name__ == "__main__":
         for line in f:
             print('*****************************************')
             print(line.rstrip())
-            printw_asptmc(string_to_weekset(line))
+            printw_asptmc(string_to_weekset(line), detailed_hours=True)
